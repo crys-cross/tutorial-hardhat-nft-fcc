@@ -1,12 +1,15 @@
 const { network } = require("hardhat")
 const { developmentChains } = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
+const { storeImages } = require("../utils/uploadToPinata")
+const imagesLocation = "./images/randomNft"
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
     let tokenUris
+    let vrfCoordinatorV2Address, subscriptionId
 
     //get the IPFS hashes ofour images(Methods below)
     //1. With our IPFS node. https://docs.ipfs.io/
@@ -16,10 +19,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         tokenUris = await handleTokenUris()
     }
 
-    let vrfCoordinatorV2Address, subscriptionId
-
     if (developmentChains.includes(network.name)) {
-        const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorv2Mock")
+        const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
         vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address
         const tx = await vrfCoordinatorV2Mock.createSubscription()
         const txReceipt = await tx.wait(1)
@@ -29,14 +30,15 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         subscriptionId = networkConfig[chainId].subscriptionId
     }
     log("----------------------------")
-    const args = [
-        vrfCoordinatorV2Address,
-        subscriptionId,
-        networkConfig[chainId].gasLane,
-        networkConfig[chainId].mintFee,
-        //tokenURI
-        networkConfig[chainId].callbackGasLimit,
-    ]
+    await storeImages(imagesLocation)
+    // const args = [
+    //     vrfCoordinatorV2Address,
+    //     subscriptionId,
+    //     networkConfig[chainId].gasLane,
+    //     networkConfig[chainId].mintFee,
+    //     //tokenURI
+    //     networkConfig[chainId].callbackGasLimit,
+    // ]
 }
 
 handleTokenUris = async () => {
@@ -46,3 +48,5 @@ handleTokenUris = async () => {
 
     return tokenUris
 }
+
+module.exports.tags = ["all", "randomipfs", "main"]
