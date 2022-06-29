@@ -1,4 +1,4 @@
-//write tests
+// test for fulfillRandomWords
 const { developmentChains, networkConfig } = require("../../helper-hardhat-config")
 
-describe("BasicNft Unit Test", () => {})
+describe("RandomIpfsNft Unit Test", () => {})
