@@ -3,6 +3,17 @@ const { developmentChains } = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
 const { storeImages } = require("../utils/uploadToPinata")
 const imagesLocation = "./images/randomNft"
+const metadataTemplate = {
+    name: "",
+    description: "",
+    image: "",
+    attributes: [
+        {
+            trait_type: "Cuteness",
+            value: 100,
+        },
+    ],
+}
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deploy, log } = deployments
@@ -30,7 +41,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         subscriptionId = networkConfig[chainId].subscriptionId
     }
     log("----------------------------")
-    await storeImages(imagesLocation)
+    // await storeImages(imagesLocation)
     // const args = [
     //     vrfCoordinatorV2Address,
     //     subscriptionId,
@@ -45,6 +56,17 @@ handleTokenUris = async () => {
     tokenUris = []
     //store the image in IPFS
     //store the metadata in IPFS
+    const { responses: imageUploadResponses, files } = await storeImages(imagesLocation)
+    for (imageUploadResponseIndex in imageUploadResponses) {
+        //create metadata
+        //upload the metadata
+        let tokenUriMetadata = { ...metadataTemplate } //... unpack
+        tokenUriMetadata.name = files[imageUploadResponseIndex].replace(".png", "")
+        tokenUriMetadata.description = `An adorable ${tokenUriMetadata.name} pup!`
+        tokenUriMetadata.image = `ipfs://${imageUploadResponses[imageUploadResponseIndex].IpfsHash}`
+        console.log(`Uploading ${tokenUriMetadata.name}...`)
+        // store the JSON to pinata/IPFS
+    }
 
     return tokenUris
 }
