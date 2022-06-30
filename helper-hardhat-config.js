@@ -40,12 +40,12 @@ const networkConfig = {
 }
 
 const developmentChains = ["hardhat", "localhost"]
-const DECIMALS = 8
-const INITIAL_ANSWER = 200000000000
+const DECIMALS = 18
+const INITIAL_PRICE = ethers.utils.parseUnits("2000", "ether")
 
 module.exports = {
     networkConfig,
     developmentChains,
     DECIMALS,
-    INITIAL_ANSWER,
+    INITIAL_PRICE,
 }
