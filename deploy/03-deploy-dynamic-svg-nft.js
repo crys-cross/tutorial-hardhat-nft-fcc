@@ -17,7 +17,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     }
     log("----------------------")
     const lowSVG = await fs.readFileSync("./images/dynamicNft/frown.svg", { encoding: "utf8" })
-    const highSVG = await fs.readFileSync("./images/dynamicNft/smile.svg", { encoding: "utf8" })
+    const highSVG = await fs.readFileSync("./images/dynamicNft/happy.svg", { encoding: "utf8" })
     args = [ethUsdPriceFeedAddress, lowSVG, highSVG]
     const dynamicSvgNft = await deploy("DynamicSvgNft", {
         from: deployer,
