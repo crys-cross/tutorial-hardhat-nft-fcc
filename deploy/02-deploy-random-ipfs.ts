@@ -29,7 +29,7 @@ let tokenUris = [
 ]
 
 const deployRandomIpfsNft: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-    const { getNamedAccounts, deployments } = hre
+    const { getNamedAccounts, deployments, network, ethers } = hre
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId!

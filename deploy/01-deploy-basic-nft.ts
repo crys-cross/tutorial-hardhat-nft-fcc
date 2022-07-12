@@ -8,13 +8,17 @@ const deployBasicNft: DeployFunction = async (hre: HardhatRuntimeEnvironment) =>
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
 
+    const waitBlockConfirmations = developmentChains.includes(network.name)
+        ? 1
+        : VERIFICATION_BLOCK_CONFIRMATIONS
+
     log("------------------------")
     const args: any[] = []
     const basicNft = await deploy("BasicNft", {
         from: deployer,
         args: args,
         log: true,
-        waitConfirmations: VERIFICATION_BLOCK_CONFIRMATIONS || 1,
+        waitConfirmations: waitBlockConfirmations || 1,
     })
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("Verifying...")
