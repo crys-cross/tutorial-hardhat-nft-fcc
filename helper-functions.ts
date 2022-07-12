@@ -1,15 +1,20 @@
 // we can't have these functions in our `helper-hardhat-config`
 // since these use the hardhat library
 // and it would be a circular dependency
-const { run, network } = require("hardhat")
-const { networkConfig } = require("./helper-hardhat-config")
+import { run, network, ethers } from "hardhat"
+import { networkConfig } from "./helper-hardhat-config"
 
-const AUTO_FUND = process.env.AUTO_FUND || true
+export const AUTO_FUND = process.env.AUTO_FUND || true
 
-const autoFundCheck = async (contractAddr, networkName, linkTokenAddress, additionalMessage) => {
+export const autoFundCheck = async (
+    contractAddr,
+    networkName,
+    linkTokenAddress,
+    additionalMessage
+) => {
     const chainId = network.config.chainId
     console.log("Checking to see if contract can be auto-funded with LINK:")
-    const amount = networkConfig[chainId]["fundAmount"]
+    const amount = networkConfig[chainId!]["fundAmount"]
     //check to see if user has enough LINK
     const accounts = await ethers.getSigners()
     const signer = accounts[0]
@@ -38,23 +43,18 @@ const autoFundCheck = async (contractAddr, networkName, linkTokenAddress, additi
     }
 }
 
-const verify = async (contractAddress, args) => {
+export const verify = async (contractAddress, args) => {
     console.log("Verifying contract...")
     try {
         await run("verify:verify", {
             address: contractAddress,
             constructorArguments: args,
         })
-    } catch (e) {
+    } catch (e: any) {
         if (e.message.toLowerCase().includes("already verified")) {
             console.log("Already verified!")
         } else {
             console.log(e)
         }
     }
-}
-
-module.exports = {
-    autoFundCheck,
-    verify,
 }
