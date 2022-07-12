@@ -3,7 +3,7 @@
 // and it would be a circular dependency
 import { run } from "hardhat"
 
-export const verify = async (contractAddress: string, args: any[]) => {
+const verify = async (contractAddress: string, args: any[]) => {
     console.log("Verifying contract...")
     try {
         await run("verify:verify", {
@@ -18,3 +18,4 @@ export const verify = async (contractAddress: string, args: any[]) => {
         }
     }
 }
+export default verify

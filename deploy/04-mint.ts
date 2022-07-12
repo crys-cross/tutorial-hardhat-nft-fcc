@@ -1,7 +1,10 @@
-const { ethers, network } = require("hardhat")
-const { developmentChains } = require("../helper-hardhat-config")
+import { ethers, network } from "hardhat"
+import { developmentChains } from "../helper-hardhat-config"
+import { DeployFunction } from "hardhat-deploy/dist/types"
+import { HardhatRuntimeEnvironment } from "hardhat/types"
 
-module.exports = async ({ getNamedAccounts }) => {
+const mint: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+    const { getNamedAccounts } = hre
     const { deployer } = await getNamedAccounts()
 
     //Basic NFT
@@ -13,7 +16,7 @@ module.exports = async ({ getNamedAccounts }) => {
     // Random IPFS NFT
     const randomIpfsNft = await ethers.getContract("RandomIpfsNft", deployer)
     const mintFee = await randomIpfsNft.getMintFee()
-    await new Promise(async (resolve, reject) => {
+    await new Promise<void>(async (resolve, reject) => {
         setTimeout(resolve, 300000) //5mins
         randomIpfsNft.once("NftMinted", async () => {
             resolve()
@@ -36,4 +39,5 @@ module.exports = async ({ getNamedAccounts }) => {
     console.log(`Dynamic SVG NFT index 0 tokenURI: ${await dynamicSvgNft.tokenURI(0)}`)
 }
 
-module.exports.tags = ["all", "mint"]
+export default mint
+mint.tags = ["all", "mint"]

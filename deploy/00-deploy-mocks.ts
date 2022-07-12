@@ -1,10 +1,12 @@
-const { network } = require("hardhat")
-const { DECIMALS, INITIAL_PRICE } = require("../helper-hardhat-config")
+import { DECIMALS, INITIAL_PRICE } from "../helper-hardhat-config"
+import { DeployFunction } from "hardhat-deploy/dist/types"
+import { HardhatRuntimeEnvironment } from "hardhat/types"
 
-const BASE_FEE = "250000000000000000" // 0.25 is this the premium in LINK?
-const GAS_PRICE_LINK = 1e9 // link per gas, is this the gas lane? // 0.000000001 LINK per gas
+export const BASE_FEE = "250000000000000000" // 0.25 is this the premium in LINK?
+export const GAS_PRICE_LINK = 1e9 // link per gas, is this the gas lane? // 0.000000001 LINK per gas
 
-module.exports = async ({ getNamedAccounts, deployments }) => {
+const deployMocks: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+    const { getNamedAccounts, deployments, network } = hre
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
@@ -31,4 +33,5 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     }
 }
-module.exports.tags = ["all", "mocks", "main"]
+export default deployMocks
+deployMocks.tags = ["all", "mocks", "main"]

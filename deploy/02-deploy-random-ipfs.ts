@@ -1,7 +1,14 @@
-const { network } = require("hardhat")
-const { developmentChains, networkConfig } = require("../helper-hardhat-config")
-const { verify } = require("../utils/verify")
-const { storeImages, storeTokenUriMetadata } = require("../utils/uploadToPinata")
+import {
+    developmentChains,
+    networkConfig,
+    VERIFICATION_BLOCK_CONFIRMATIONS,
+} from "../helper-hardhat-config"
+import verify from "../utils/verify"
+import { storeImages, storeTokenUriMetadata } from "../utils/uploadToPinata"
+import { DeployFunction } from "hardhat-deploy/dist/types"
+import { HardhatRuntimeEnvironment } from "hardhat/types"
+
+const FUND_AMOUNT = "1000000000000000000000" //10 LINK ethers.parseUnit
 const imagesLocation = "./images/randomNft"
 const metadataTemplate = {
     name: "",
@@ -21,12 +28,11 @@ let tokenUris = [
     "ipfs://QmZYmH5iDbD6v3U2ixoVAjioSzvWJszDzYdbeCLquGSpVm",
 ]
 
-const FUND_AMOUNT = "1000000000000000000000" //10 LINK ethers.parseUnit
-
-module.exports = async ({ getNamedAccounts, deployments }) => {
+const deployRandomIpfsNft: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+    const { getNamedAccounts, deployments } = hre
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
-    const chainId = network.config.chainId
+    const chainId = network.config.chainId!
 
     let vrfCoordinatorV2Address, subscriptionId
 
@@ -49,9 +55,14 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         vrfCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorV2
         subscriptionId = networkConfig[chainId].subscriptionId
     }
+
+    const waitBlockConfirmations = developmentChains.includes(network.name)
+        ? 1
+        : VERIFICATION_BLOCK_CONFIRMATIONS
+
     log("----------------------------")
     // await storeImages(imagesLocation)
-    arguments = [
+    const args = [
         vrfCoordinatorV2Address,
         subscriptionId,
         networkConfig[chainId]["gasLane"],
@@ -62,9 +73,9 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
     const randomIpfsNft = await deploy("RandomIpfsNft", {
         from: deployer,
-        args: arguments,
+        args: args,
         log: true,
-        waitConfirmations: network.config.blockConfirmations || 1,
+        waitConfirmations: waitBlockConfirmations || 1,
     })
     log("--------------------------------")
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
@@ -73,12 +84,15 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     }
 }
 
-handleTokenUris = async () => {
+const handleTokenUris = async () => {
+    // Check out https://github.com/PatrickAlphaC/nft-mix for a pythonic version of uploading
+    // to the raw IPFS-daemon from https://docs.ipfs.io/how-to/command-line-quick-start/
+    // You could also look at pinata https://www.pinata.cloud/
     tokenUris = []
     //store the image in IPFS
     //store the metadata in IPFS
     const { responses: imageUploadResponses, files } = await storeImages(imagesLocation)
-    for (imageUploadResponseIndex in imageUploadResponses) {
+    for (const imageUploadResponseIndex in imageUploadResponses) {
         //create metadata
         //upload the metadata
         let tokenUriMetadata = { ...metadataTemplate } //... unpack
@@ -88,11 +102,11 @@ handleTokenUris = async () => {
         console.log(`Uploading ${tokenUriMetadata.name}...`)
         // store the JSON to pinata/IPFS
         const metadataUploadResponse = await storeTokenUriMetadata(tokenUriMetadata)
-        tokenUris.push(`ipfs://${metadataUploadResponse.IpfsHash}`)
+        tokenUris.push(`ipfs://${metadataUploadResponse!.IpfsHash}`)
     }
-    console.log("Token URIs Uploaded! They are")
+    console.log("Token URIs Uploaded! They are:")
     console.log(tokenUris)
     return tokenUris
 }
-
-module.exports.tags = ["all", "randomipfs", "main"]
+export default deployRandomIpfsNft
+deployRandomIpfsNft.tags = ["all", "randomipfs", "main"]
