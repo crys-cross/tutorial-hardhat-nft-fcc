@@ -1,6 +1,7 @@
 //write tests
-import { assert, expect } from "chai"
+import { assert } from "chai"
 import { network, deployments, ethers } from "hardhat"
+import { developmentChains } from "../../helper-hardhat-config"
 import { BasicNft } from "../../typechain-types"
 
 !developmentChains.includes(network.name)
