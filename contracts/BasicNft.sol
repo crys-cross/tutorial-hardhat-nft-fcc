@@ -9,6 +9,8 @@ contract BasicNft is ERC721 {
         "ipfs://bafybeig37ioir76s7mg5oobetncojcm3c3hxasyd4rvid4jqhy4gkaheg4/?filename=0-PUG.json";
     uint256 private s_tokenCounter;
 
+    event DogMinted(uint256 indexed tokenId);
+
     constructor() ERC721("Dogie", "DOG") {
         s_tokenCounter = 0;
     }
